@@ -1,0 +1,6 @@
+.autoenv
+.mypy_cache
+.venv
+cache
+config
+results
