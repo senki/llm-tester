@@ -70,5 +70,5 @@ This repository provides a Python script for **querying multiple LLMs** via [Oll
 
    ```bash
    python llm-tester.py
-   python llm-comparer.py
+   python llm-compare.py
    ```
