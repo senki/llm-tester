@@ -1,6 +1,6 @@
 # LLM Testing & Evaluation
 
-This repository provides a Python script for **querying multiple LLMs** via [Ollama](https://ollama.com), **caching** their responses, and **evaluating** those responses with an OpenAI GPT-4 model. It’s useful for automated model benchmarking and comparison.
+This repository provides a Python script for **querying multiple LLMs** via [Ollama](https://ollama.com), **caching** their responses, and **evaluating** and **comparing** those responses. It’s useful for automated model benchmarking and comparison.
 
 ---
 
@@ -16,20 +16,14 @@ This repository provides a Python script for **querying multiple LLMs** via [Oll
    Loads prompt text from `config/prompts.json`, which can be updated or extended as needed.
 
 4. **Automated Evaluations**
-   Reads an evaluation instruction text from `config/evaluation_prompt.txt`. Sends both the prompts and responses to GPT-4 for automated scoring or assessment, saved in the `results` directory.
+   Reads an evaluation instruction text from `config/evaluation_prompt.txt` for automated scoring or assessment Comparison saved in the `results` directory.
 
 ---
 
 ## Prerequisites
 
 - **Python 3.7+**
-- **Ollama** installed locally for running supported models: [Ollama GitHub](https://github.com/ollama/ollama)
-- **Environment Variable for OpenAI Key**
-  You must have `OPENAI_API_KEY` set in your environment or a `.env` file so that `openai.chat.completions.create(...)` can authenticate. For example:
-
-  ```bash
-  export OPENAI_API_KEY=your_openai_key_here
-  ```
+- **Ollama** installed locally for running models: [Ollama GitHub](https://github.com/ollama/ollama)
 
 ---
 
@@ -39,7 +33,7 @@ This repository provides a Python script for **querying multiple LLMs** via [Oll
 2. **Install Dependencies**:
 
    ```bash
-   pip install openai ollama
+   pip install ollama
    ```
 
 3. **Create or Update Configuration**:
@@ -72,22 +66,9 @@ This repository provides a Python script for **querying multiple LLMs** via [Oll
 
 ## Usage
 
-1. **Run the script**:
+1. **Run the scripts**:
 
    ```bash
-   python llm-tester.py.py
+   python llm-tester.py
+   python llm-comparer.py
    ```
-
-   This will:
-   - Read model list from `config/models.json`.
-   - Load prompts from `config/prompts.json`.
-   - For each model, query each prompt if not already cached in `cache/`.
-   - Evaluate the prompts and responses using GPT-4 instructions in `config/evaluation_prompt.txt`.
-   - Store the final markdown evaluation in `results/` with a timestamp.
-
-2. **Check Outputs**:
-   - **Cached Responses** in `cache/<model_name>/prompt_<id>.txt`
-   - **Evaluation Reports** in `results/evaluation_YYYYMMDD_HHMMSS.md`
-
-3. **Rerunning**:
-   - If a file already exists in `cache/` for a given model and prompt, the script **skips** re-querying that model. If you want to force re-query, delete the corresponding `.txt` file from `cache/`.
