@@ -28,7 +28,7 @@ def save_response(llm_name, prompt_id, response, cache_dir):
     return filename
 
 
-def evaluate_with_chatgpt(responses, evaluation_prompt, prompt_file):
+def evaluate_with_ollama(responses, evaluation_prompt, prompt_file):
     prompts = load_prompts(prompt_file)
     messages = [{"role": "system", "content": evaluation_prompt}]
     for id, response in responses.items():
@@ -74,7 +74,7 @@ def main(prompt_file, evaluate_file, llm_names, cache_dir, result_dir):
             responses[prompt_id] = response
 
         print(f"Evaluating {llm_name} responses...")
-        evaluation = evaluate_with_chatgpt(responses, evaluation_prompt, prompt_file)
+        evaluation = evaluate_with_ollama(responses, evaluation_prompt, prompt_file)
         eval_filename = save_evaluation(llm_name, evaluation, result_dir)
         print(f"Evaluation saved to: {eval_filename}")
 
