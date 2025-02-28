@@ -1,4 +1,4 @@
-import openai
+import ollama
 import os
 import sys
 from datetime import datetime
@@ -37,8 +37,8 @@ def main():
 
     # Call OpenAI
     try:
-        response = openai.chat.completions.create(model="gpt-4o", messages=messages)
-        comparison_output = response.choices[0].message.content
+        response = ollama.chat(model="deepseek-r1", messages=[{"role": "user", "content": messages}])
+        comparison_output = response["message"]["content"].strip()
     except Exception as e:
         print(f"Error calling OpenAI API: {e}")
         sys.exit(1)
