@@ -2,6 +2,7 @@ import json
 import openai
 import ollama
 import os
+import sys
 from datetime import datetime
 
 
@@ -77,6 +78,16 @@ def save_evaluation(llm_name, evaluation, result_dir):
     return filename
 
 
+def format_seconds(seconds):
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes, seconds = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{minutes}m {seconds}s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours}h {minutes}m {seconds}s"
+
+
 def main(prompt_file, evaluate_system_file, evaluate_prompt_file, llm_names, cache_dir, result_dir):
     prompts = load_prompts(prompt_file)
 
@@ -85,17 +96,18 @@ def main(prompt_file, evaluate_system_file, evaluate_prompt_file, llm_names, cac
         for prompt_id, prompt in prompts.items():
             filename = safe_filename(llm_name, prompt_id, cache_dir)
             if os.path.exists(filename) and os.path.getsize(filename) > 0:
-                print(f"Skipping {llm_name} for prompt {prompt_id}, response already exists.")
+                print(f"Skipping {llm_name} prompt {prompt_id}. Already exists.")
                 with open(filename, "r") as file:
                     responses[prompt_id] = file.read()
                 continue
 
-            print(f"Querying {llm_name} with prompt {prompt_id}...")
+            print(f"Querying {llm_name} prompt {prompt_id}. ", end="")
+            sys.stdout.flush()
             start_time = datetime.now()
             response = query_ollama(llm_name, prompt).strip()
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds()
-            print(f"  Took {duration} seconds")
+            print(f"Took {format_seconds(duration)}")
             save_response(llm_name, prompt_id, response, cache_dir)
             responses[prompt_id] = response
 
