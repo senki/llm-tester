@@ -1,4 +1,5 @@
 .autoenv
+.autoenv.leave
 .mypy_cache
 .venv
 cache
