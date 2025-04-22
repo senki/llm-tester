@@ -28,16 +28,27 @@ def main():
     messages = [
         {
             "role": "system",
-            "content": "Compare and contrast the tested LLMs based on the evaluations provided. Determine the overall winner.",
+            "content": (
+                "You are an expert LLM evaluator. "
+                "I’m going to give you several separate evaluation reports, "
+                "and I’d like you to synthesize them into one coherent comparative analysis. "
+                "Highlight each model’s strengths, weaknesses, similarities, and differences."
+            ),
         }
     ]
 
-    for filename, content in evaluations:
-        messages.append({"role": "user", "content": f"Evaluation file: {filename}\n---\n{content}"})
+    for idx, eval_text in enumerate(evaluations, start=1):
+        messages.append({"role": "user", "content": f"Evaluation #{idx}:\n{eval_text}"})
 
+    messages.append(
+        {
+            "role": "user",
+            "content": ("Now, please produce a comprehensive comparison report based on the above evaluations."),
+        }
+    )
     # Call OpenAI
     try:
-        response = openai.chat.completions.create(model="gpt-4o", messages=messages)
+        response = openai.chat.completions.create(model="gpt-4.1", messages=messages, temperature=0.3)
         comparison_output = response.choices[0].message.content
     except Exception as e:
         print(f"Error calling OpenAI API: {e}")
