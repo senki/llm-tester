@@ -80,7 +80,7 @@ def save_evaluation(llm_name, evaluation, result_dir):
 
 def format_seconds(seconds):
     if seconds < 60:
-        return f"{seconds}s"
+        return f"{seconds:.2f}s"
     minutes, seconds = divmod(seconds, 60)
     if minutes < 60:
         return f"{minutes}m {seconds}s"
@@ -107,7 +107,8 @@ def main(prompt_file, evaluate_system_file, evaluate_prompt_file, llm_names, cac
             response = query_ollama(llm_name, prompt).strip()
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds()
-            print(f"Took {format_seconds(duration)}")
+            cps = len(response) / duration
+            print(f"Took {format_seconds(duration)} ({cps:.2f} chars/sec)")
             save_response(llm_name, prompt_id, response, cache_dir)
             responses[prompt_id] = response
 
