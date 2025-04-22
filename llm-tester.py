@@ -64,7 +64,7 @@ def evaluate_with_openai(responses, evaluate_system_file, evaluate_prompt_file, 
         {"role": "user", "content": f"{evaluation_prompt}\n\nHere are the question-answer pairs:\n\n{all_qa_text}"},
     ]
 
-    completion = openai.chat.completions.create(model="gpt-4.1", messages=messages)
+    completion = openai.chat.completions.create(model="gpt-4.1", messages=messages, temperature=0.3)
     return completion.choices[0].message.content
 
 
