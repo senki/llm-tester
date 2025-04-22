@@ -1,4 +1,5 @@
 import json
+import openai
 import ollama
 import os
 from datetime import datetime
@@ -11,7 +12,7 @@ def load_prompts(prompt_file):
 
 def query_ollama(llm_name, prompt):
     response = ollama.chat(model=llm_name, messages=[{"role": "user", "content": prompt}])
-    return response["message"]["content"].strip()
+    return response["message"]["content"]
 
 
 def safe_filename(llm_name, prompt_id, cache_dir):
@@ -39,7 +40,8 @@ def evaluate_with_ollama(responses, evaluation_prompt, prompt_file):
     # Debug output messages
     # print(messages)
 
-    return query_ollama("deepseek-r1", messages)
+    completion = openai.chat.completions.create(model="gpt-4o", messages=messages)
+    return completion.choices[0].message.content
 
 
 def save_evaluation(llm_name, evaluation, result_dir):
@@ -69,7 +71,7 @@ def main(prompt_file, evaluate_file, llm_names, cache_dir, result_dir):
                 continue
 
             print(f"Querying {llm_name} with prompt {prompt_id}...")
-            response = query_ollama(llm_name, prompt)
+            response = query_ollama(llm_name, prompt).strip()
             save_response(llm_name, prompt_id, response, cache_dir)
             responses[prompt_id] = response
 
