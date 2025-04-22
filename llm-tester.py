@@ -42,8 +42,12 @@ def save_response(llm_name, prompt_id, response, cache_dir):
     return filename
 
 
-def evaluate_with_openai(responses, evaluation_prompt, prompt_file):
+def evaluate_with_openai(responses, evaluate_system_file, evaluate_prompt_file, prompt_file):
     prompts = load_prompts(prompt_file)
+    with open(evaluate_system_file, "r") as file:
+        system_prompt = file.read()
+    with open(evaluate_prompt_file, "r") as file:
+        evaluation_prompt = file.read()
     qa_blocks = []
     for id, response in responses.items():
         prompt = prompts[id]
@@ -55,14 +59,7 @@ def evaluate_with_openai(responses, evaluation_prompt, prompt_file):
     # print(all_qa_text)
 
     messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are an expert evaluator. Your task is to assess a language model's performance "
-                "across a series of question-and-answer pairs. Provide a clear, concise summary of strengths, "
-                "weaknesses, and general trends. Avoid restating individual prompts or answers."
-            ),
-        },
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"{evaluation_prompt}\n\nHere are the question-answer pairs:\n\n{all_qa_text}"},
     ]
 
@@ -80,11 +77,8 @@ def save_evaluation(llm_name, evaluation, result_dir):
     return filename
 
 
-def main(prompt_file, evaluate_file, llm_names, cache_dir, result_dir):
+def main(prompt_file, evaluate_system_file, evaluate_prompt_file, llm_names, cache_dir, result_dir):
     prompts = load_prompts(prompt_file)
-
-    with open(evaluate_file, "r") as file:
-        evaluation_prompt = file.read()
 
     for llm_name in llm_names:
         responses = {}
@@ -97,21 +91,26 @@ def main(prompt_file, evaluate_file, llm_names, cache_dir, result_dir):
                 continue
 
             print(f"Querying {llm_name} with prompt {prompt_id}...")
+            start_time = datetime.now()
             response = query_ollama(llm_name, prompt).strip()
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds()
+            print(f"  Took {duration} seconds")
             save_response(llm_name, prompt_id, response, cache_dir)
             responses[prompt_id] = response
 
         print(f"Evaluating {llm_name} responses...")
-        evaluation = evaluate_with_openai(responses, evaluation_prompt, prompt_file)
+        evaluation = evaluate_with_openai(responses, evaluate_system_file, evaluate_prompt_file, prompt_file)
         eval_filename = save_evaluation(llm_name, evaluation, result_dir)
         print(f"Evaluation saved to: {eval_filename}")
 
 
 if __name__ == "__main__":
     prompt_path = "config/prompts.json"
-    evaluate_path = "config/evaluation_prompt.txt"
+    evaluate_system_path = "config/evaluation_system.txt"
+    evaluate_prompt_path = "config/evaluation_prompt.txt"
     with open("config/models.json", "r") as file:
         llm_list = json.load(file)
     cache_dir = "cache"
     result_dir = "results"
-    main(prompt_path, evaluate_path, llm_list, cache_dir, result_dir)
+    main(prompt_path, evaluate_system_path, evaluate_prompt_path, llm_list, cache_dir, result_dir)
